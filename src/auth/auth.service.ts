@@ -1,26 +1,32 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable prettier/prettier */
+
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { SignupDTO } from './dto/signup.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from './schemas/user.schema';
+import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  constructor(@InjectModel(User.name) private UserModel: Model<User>) {}
+  async signup(signupData: SignupDTO) {
+    const {email, password, name} = signupData;
+    const emailInUse = await this.UserModel.findOne({ email, });
+    if (emailInUse) {
+      throw new BadRequestException('Email already in use');
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    await this.UserModel.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
   }
 }
