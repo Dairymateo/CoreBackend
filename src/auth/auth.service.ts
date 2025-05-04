@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable prettier/prettier */
@@ -9,11 +10,15 @@ import { User } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { LoginDTO } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
 
-  constructor(@InjectModel(User.name) private UserModel: Model<User>) {}
+  constructor(@InjectModel(User.name) private UserModel: Model<User>, 
+  private jwtService: JwtService,
+) {}
+
   async signup(signupData: SignupDTO) {
     const {email, password, name} = signupData;
     const emailInUse = await this.UserModel.findOne({ email, });
@@ -43,7 +48,18 @@ export class AuthService {
     if (!passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    
 
-    return {"message": "Login successful", user: {name: user.name, email: user.email}};
+    return this.generateuserToken(user._id);
+  }
+
+
+  async generateuserToken(userId){
+
+    const accesstoken =this.jwtService.sign({userId}, {expiresIn: '1h'});
+
+    return {
+      accesstoken,
+    };
   }
 }
