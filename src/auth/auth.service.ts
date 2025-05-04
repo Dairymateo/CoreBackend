@@ -11,11 +11,15 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { LoginDTO } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { RefreshToken } from './schemas/refresh-token.schema';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
 
-  constructor(@InjectModel(User.name) private UserModel: Model<User>, 
+  constructor(
+    @InjectModel(User.name) private UserModel: Model<User>,
+    @InjectModel(RefreshToken.name) private RefreshTokenModel: Model<RefreshToken>,
   private jwtService: JwtService,
 ) {}
 
@@ -50,16 +54,46 @@ export class AuthService {
     }
     
 
-    return this.generateuserToken(user._id);
+    const tokens = await this.generateuserToken(user._id);
+    return {
+      ...tokens,
+      userId: user._id,
+    }
+  }
+
+  async refreshTokens(refreshToken: string) {
+    const token = await this.RefreshTokenModel.findOneAndDelete({ 
+      token: refreshToken, 
+      expiryDate: { $gte: new Date() }, 
+    });
+
+    if (!token) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    return this.generateuserToken(token.userId);
   }
 
 
   async generateuserToken(userId){
 
     const accesstoken =this.jwtService.sign({userId}, {expiresIn: '1h'});
+    const refreshtoken = uuidv4();
 
+    await this.storeRefreshToken(refreshtoken, userId);
     return {
       accesstoken,
+      refreshtoken
     };
   }
+
+
+
+  async storeRefreshToken(token:string, userId) {
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 3); 
+    await this.RefreshTokenModel.create({token, userId, expiryDate });
+  }  
 }
+
+
