@@ -93,7 +93,27 @@ export class AuthService {
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + 3); 
     await this.RefreshTokenModel.create({token, userId, expiryDate });
-  }  
+  } 
+  
+  async createAdminUser(adminEmail: string, adminPassword: string, adminName: string = 'Administrator') {
+    const existingAdmin = await this.UserModel.findOne({ email: adminEmail });
+
+    if (!existingAdmin) {
+      try {
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
+        await this.UserModel.create({
+          name: adminName,
+          email: adminEmail,
+          password: hashedPassword,
+        });
+        console.log('Usuario administrador creado desde AuthService.');
+      } catch (error) {
+        console.error('Error al crear el usuario administrador en AuthService:', error);
+      }
+    } else {
+      console.log('El usuario administrador ya existe.');
+    }
+  }
 }
 
 
