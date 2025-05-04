@@ -2,12 +2,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable prettier/prettier */
 
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { SignupDTO } from './dto/signup.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { LoginDTO } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,5 +29,21 @@ export class AuthService {
       email,
       password: hashedPassword,
     });
+  }
+
+
+  async login(credentials: LoginDTO){
+    const {email, password} = credentials;
+    const user = await this.UserModel.findOne({ email });
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const passwordMatches = await bcrypt.compare(password, user.password);
+    if (!passwordMatches) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return {"message": "Login successful", user: {name: user.name, email: user.email}};
   }
 }
