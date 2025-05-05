@@ -21,15 +21,15 @@ export class PilotsService {
     return this.pilotModel.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} pilot`;
+  findOne(id: string) {
+    return this.pilotModel.findById(id);
   }
 
-  update(id: number, updatePilotDto: UpdatePilotDto) {
-    return `This action updates a #${id} pilot`;
+  update(id: string, updatePilotDto: UpdatePilotDto) {
+    return this.pilotModel.findByIdAndUpdate(id, updatePilotDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} pilot`;
+  remove(id: string) {
+    return this.pilotModel.findByIdAndDelete(id);
   }
 }
