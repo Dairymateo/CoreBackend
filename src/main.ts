@@ -26,7 +26,12 @@ async function bootstrap() {
     console.warn('Advertencia: No se encontraron las credenciales del administrador en las variables de entorno.');
   }
 
-  
+  app.enableCors({
+    origin: 'http://localhost:3001', 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+
+  });
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
