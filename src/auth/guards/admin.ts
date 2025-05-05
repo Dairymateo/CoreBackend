@@ -12,7 +12,7 @@ export class AdminGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request['user']; 
 
-    console.log('User in AdminGuard:', user);
+   
 
     if (!user || !user.isAdmin) { 
       throw new UnauthorizedException('Acceso no autorizado. Se requiere ser administrador.');
