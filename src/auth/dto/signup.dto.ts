@@ -14,6 +14,10 @@ export class SignupDTO {
     @Matches(/(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])/, {message: 'password too weak'})
     password: string;
 
+    
+
+    
+
 
 }
 

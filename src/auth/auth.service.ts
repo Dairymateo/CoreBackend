@@ -105,6 +105,7 @@ export class AuthService {
           name: adminName,
           email: adminEmail,
           password: hashedPassword,
+          isAdmin: true,
         });
         console.log('Usuario administrador creado desde AuthService.');
       } catch (error) {
