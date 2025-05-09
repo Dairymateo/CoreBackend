@@ -4,15 +4,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { MongooseModule } from '@nestjs/mongoose';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { MongooseModule } from '@nestjs/mongoose';
+
+import config from './config/config';
+import { AuthModule } from './auth/auth.module';
 import { PilotsModule } from './pilots/pilots.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
-import config from './config/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -20,26 +21,27 @@ import config from './config/config';
       isGlobal: true,
       cache: true,
       load: [config],
+      envFilePath: ['.env', '/etc/secrets/.env'],
     }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (config) => ({
-        secret: config.get('jwt.secret'),
-    }),
-    global: true,
-    inject: [ConfigService],
+      inject: [ConfigService],
+      global: true,
+      useFactory: async (cs: ConfigService) => ({
+        secret: cs.get<string>('jwt.secret'),
+      }),
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (config) => ({
-        uri: config.get('database.connectionString'),
-      }),
       inject: [ConfigService],
+      useFactory: async (cs: ConfigService) => ({
+        uri: cs.get<string>('database.connectionString'),
+      }),
     }),
     AuthModule,
     PilotsModule,
     VehiclesModule,
-   ],
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
