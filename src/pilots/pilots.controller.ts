@@ -38,4 +38,14 @@ export class PilotsController {
   remove(@Param('id') id: string) {
     return this.pilotsService.remove(id);
   }
+
+
+  @Get('general-performance/:id')
+  async calculateGeneralPilotPerformance(@Param('id') id: string) {
+    const pilot = await this.pilotsService.findOne(id);
+    if (!pilot) {
+      throw new Error('Pilot not found');
+    }
+    return this.pilotsService.calculateGeneralPilotPerformance(pilot);
+  }
 }

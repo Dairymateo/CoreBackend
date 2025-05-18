@@ -12,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PilotsModule } from './pilots/pilots.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
+import { CircuitsModule } from './circuits/circuits.module';
 import config from './config/config';
 
 @Module({
@@ -39,6 +40,7 @@ import config from './config/config';
     AuthModule,
     PilotsModule,
     VehiclesModule,
+    CircuitsModule,
    ],
   controllers: [AppController],
   providers: [AppService],
