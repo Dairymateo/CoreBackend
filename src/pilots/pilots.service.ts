@@ -4,7 +4,6 @@ import { Injectable } from '@nestjs/common';
 import { CreatePilotDto } from './dto/create-pilot.dto';
 import { UpdatePilotDto } from './dto/update-pilot.dto';
 import { InjectModel } from '@nestjs/mongoose';
-//import { Pilot } from './entities/pilot.entity';
 import { Model } from 'mongoose';
 import { Pilot, PilotDocument } from './schemas/Pilot.schema';
 
