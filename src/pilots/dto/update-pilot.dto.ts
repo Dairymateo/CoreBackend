@@ -29,7 +29,6 @@ export class UpdatePilotDto extends PartialType(CreatePilotDto) {
     porcentajeAbandonoGeneral: number;
 
     @IsOptional()
-    @IsArray()
-    @IsMongoId({ each: true })
-    vehiculos: string[]; 
+    @IsMongoId({ })
+    vehiculoId?: string;; 
 }

@@ -9,5 +9,6 @@ import { Vehicle, VehicleSchema } from './schemas/Vehicle.schema';
   imports: [MongooseModule.forFeature([{name: Vehicle.name, schema: VehicleSchema}])], 
   controllers: [VehiclesController],
   providers: [VehiclesService],
+  exports: [VehiclesService]
 })
 export class VehiclesModule {}

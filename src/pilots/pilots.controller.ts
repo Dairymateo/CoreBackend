@@ -39,4 +39,10 @@ export class PilotsController {
     return this.pilotsService.remove(id);
   }
 
+
+  @Get('ranking/circuit/:circuitId')
+  async getPilotRankingForCircuit(@Param('circuitId') circuitId: string) {
+    return this.pilotsService.getPilotRankingForCircuit(circuitId);
+  }
+
 }

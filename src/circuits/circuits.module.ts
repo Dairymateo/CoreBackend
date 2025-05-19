@@ -10,5 +10,6 @@ import { CircuitSchema } from './schemas/Circuits.schema';
   imports: [MongooseModule.forFeature([{ name: Circuit.name, schema: CircuitSchema }])],
   controllers: [CircuitsController],
   providers: [CircuitsService],
+  exports: [MongooseModule]
 })
 export class CircuitsModule {}

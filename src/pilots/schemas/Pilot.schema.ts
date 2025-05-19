@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument } from "mongoose";
-import { Vehicle } from "src/vehicles/schemas/Vehicle.schema";
+import { HydratedDocument, Types } from "mongoose";
+//import { Vehicle } from "src/vehicles/schemas/Vehicle.schema";
 
 export type PilotDocument = HydratedDocument<Pilot>;
 
@@ -21,8 +21,8 @@ export class Pilot{
     @Prop({required: true})
     porcentajeAbandonoGeneral: number;
 
-    @Prop({})
-    vehiculoId: Vehicle;
+    @Prop({ type: Types.ObjectId, ref: 'Vehicle' })
+    vehiculoId: Types.ObjectId;
 
     @Prop({type: Number})
     generalPerfomance: number;
