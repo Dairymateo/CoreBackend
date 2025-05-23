@@ -20,10 +20,24 @@ export class UpdateCircuitDto extends PartialType(CreateCircuitDto) {
     @IsString()
     @IsOptional()
     tipoCircuito?: string;
-    
+
     @IsNumber()
     @IsOptional()
-    NivelDificultad?: number;
+    cantidadCurvas?: number;
+
+    @IsNumber()
+    @IsOptional()
+    porcentajeAccidentesHistorico?: number;
+
+    @IsNumber()
+    @IsOptional()
+    longitudRectaMasLargaKm?: number;
+
+    @IsNumber()
+    @IsOptional()
+    cambioElevacionMetros?: number;
+    
+
 
 
 

@@ -1,9 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
-/* eslint-disable prettier/prettier */
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+
 export class CreateCircuitDto {
-
     @IsString()
     @IsNotEmpty()
     name: string;
@@ -15,18 +14,24 @@ export class CreateCircuitDto {
     @IsNumber()
     @IsNotEmpty()
     temperature: number;
-    
+
     @IsString()
     @IsNotEmpty()
     tipoCircuito: string;
 
     @IsNumber()
     @IsNotEmpty()
-    NivelDificultad: number;
+    cantidadCurvas: number;
 
+    @IsNumber()
+    @IsNotEmpty()
+    porcentajeAccidentesHistorico: number;
 
+    @IsNumber()
+    @IsNotEmpty()
+    longitudRectaMasLargaKm: number;
 
-    
-
-
+    @IsNumber()
+    @IsNotEmpty()
+    cambioElevacionMetros: number;
 }
