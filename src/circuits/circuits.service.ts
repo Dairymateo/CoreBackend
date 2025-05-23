@@ -1,35 +1,82 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateCircuitDto } from './dto/create-circuit.dto';
 import { UpdateCircuitDto } from './dto/update-circuit.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Circuit } from './entities/circuit.entity';
-import { Model } from 'mongoose';
+import { Circuit, CircuitDocument } from './schemas/Circuits.schema';
 
 @Injectable()
 export class CircuitsService {
+    constructor(@InjectModel(Circuit.name) private circuitModel: Model<CircuitDocument>) {}
 
-  constructor(@InjectModel(Circuit.name) private circuitModel: Model<Circuit>) {}
+    async create(createCircuitDto: CreateCircuitDto): Promise<Circuit> {
+        const newCircuit = new this.circuitModel(createCircuitDto);
+        // Calcular la dificultad usando tu nueva lógica y asignarla al nuevo circuito
+        newCircuit.dificultadCircuito = this.calculateCircuitDifficulty(newCircuit);
+        return newCircuit.save();
+    }
+
+    findAll(): Promise<Circuit[]> {
+        return this.circuitModel.find().exec();
+    }
+
+    findOne(id: string): Promise<Circuit | null> {
+        return this.circuitModel.findById(id).exec();
+    }
+
+    async update(id: string, updateCircuitDto: UpdateCircuitDto): Promise<CircuitDocument | null> {
+        try {
+            const existingCircuit = await this.circuitModel.findById(id).exec();
+
+            if (!existingCircuit) {
+                throw new NotFoundException(`Circuito con ID "${id}" no encontrado.`);
+            }
+
+            Object.assign(existingCircuit, updateCircuitDto);
 
 
-  create(createCircuitDto: CreateCircuitDto) {
-    const newCircuit = new this.circuitModel(createCircuitDto);
-    return newCircuit.save();
-  }
+            existingCircuit.dificultadCircuito = this.calculateCircuitDifficulty(existingCircuit);
 
-  findAll() {
-    return this.circuitModel.find();
-  }
+            return await existingCircuit.save();
 
-  findOne(id: string) {
-    return this.circuitModel.findById(id);
-  }
+        } catch (error) {
+            console.error('Error al actualizar el circuito:', error);
+            throw error;
+        }
+    }
 
-  update(id: string, updateCircuitDto: UpdateCircuitDto) {
-    return this.circuitModel.findByIdAndUpdate(id, updateCircuitDto);
-  }
+    remove(id: string): Promise<any> {
+        return this.circuitModel.findByIdAndDelete(id).exec();
+    }
 
-  remove(id: string) {
-    return this.circuitModel.findByIdAndDelete(id);
-  }
+  
+    private calculateCircuitDifficulty(circuit: CircuitDocument): number {
+        const {
+            cantidadCurvas,
+            porcentajeAccidentesHistorico,
+            longitudRectaMasLargaKm,
+            cambioElevacionMetros,
+        } = circuit;
+
+        const pesoCurvas = 0.5;
+        const pesoAccidentes = 0.2;
+        const pesoRecta = 0.2;
+        const pesoElevacion = 0.1;
+
+        const curvasNormalizado = cantidadCurvas / 12; 
+        const accidentesNormalizado = porcentajeAccidentesHistorico / 100;
+        const rectaNormalizada = 1 - (longitudRectaMasLargaKm / 4); 
+        const elevacionNormalizada = cambioElevacionMetros / 500;
+
+        let dificultadCalculada =
+            (curvasNormalizado * pesoCurvas) +
+            (accidentesNormalizado * pesoAccidentes) +
+            (rectaNormalizada * pesoRecta) +
+            (elevacionNormalizada * pesoElevacion);
+
+        dificultadCalculada = Math.min(Math.max(dificultadCalculada * 10, 1), 10);
+
+        return parseFloat(dificultadCalculada.toFixed(2));
+    }
 }

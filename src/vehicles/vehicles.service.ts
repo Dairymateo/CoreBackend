@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable prettier/prettier */
+
 import { Injectable } from '@nestjs/common';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';

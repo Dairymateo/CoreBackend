@@ -99,7 +99,7 @@ export class PilotsService {
 
     const pilotPerformance= pilot.generalPerfomance || 0;
     const vehiclePerformance = (pilot.vehiculoId as any).vehiclePerfomance || 0;
-    const NivelDificultad = ciruit.NivelDificultad || 5;
+    const NivelDificultad = ciruit.dificultadCircuito || 5;
 
     let pesoP=0.5;
     let pesoV=0.5;

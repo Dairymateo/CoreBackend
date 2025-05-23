@@ -28,7 +28,10 @@ export class Circuit {
     longitudRectaMasLargaKm: number; 
 
     @Prop({ required: true })
-    cambioElevacionMetros: number; 
+    cambioElevacionMetros: number;
+
+    @Prop({ required: true })
+    dificultadCircuito: number;
 }
 
 export const CircuitSchema = SchemaFactory.createForClass(Circuit);
