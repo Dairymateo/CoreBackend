@@ -27,7 +27,7 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin: 'https://frontendadmin-ws7v.onrender.com', 
+    origin:'http://localhost:3001', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
 
