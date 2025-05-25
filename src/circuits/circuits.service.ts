@@ -62,15 +62,15 @@ export class CircuitsService {
       cambioElevacionMetros,
     } = circuit;
 
-    const pesoCurvas = 0.5;
-    const pesoAccidentes = 0.2;
-    const pesoRecta = 0.2;
-    const pesoElevacion = 0.1;
+    const pesoCurvas = 0.4;
+    const pesoAccidentes = 0.1;
+    const pesoRecta = 0.3;
+    const pesoElevacion = 0.2;
 
-    const curvasNormalizado = cantidadCurvas / 12;
+    const curvasNormalizado = cantidadCurvas / 20;
     const accidentesNormalizado = porcentajeAccidentesHistorico / 100;
-    const rectaNormalizada = 1 - longitudRectaMasLargaKm / 4;
-    const elevacionNormalizada = cambioElevacionMetros / 500;
+    const rectaNormalizada = 1 - longitudRectaMasLargaKm / 7;
+    const elevacionNormalizada = cambioElevacionMetros / 8;
 
     let dificultadCalculada =
       curvasNormalizado * pesoCurvas +

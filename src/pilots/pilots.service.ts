@@ -106,22 +106,26 @@ export class PilotsService {
       return 0;
     }
 
-    const pilotPerformance = pilot.generalPerfomance || 0;
-    const vehiclePerformance = (pilot.vehiculoId as any).vehiclePerfomance || 0;
-    const NivelDificultad = ciruit.dificultadCircuito || 5;
+    const pilotPerformance = pilot.generalPerfomance;
+    const vehiclePerformance = (pilot.vehiculoId as any).vehiclePerfomance;
+    const NivelDificultad = ciruit.dificultadCircuito;
 
     let pesoP = 0.5;
     let pesoV = 0.5;
 
-    if (NivelDificultad >= 7 && NivelDificultad <= 10) {
-      pesoP = 0.75;
-      pesoV = 0.25;
-    } else if (NivelDificultad >= 4 && NivelDificultad <= 6) {
+    if (NivelDificultad == 10) {
+      pesoP = 0.95;
+      pesoV = 0.05;
+    } else if (NivelDificultad >= 8 && NivelDificultad <= 9) {
+      pesoP = 0.80;
+      pesoV = 0.20;
+    }
+    else if (NivelDificultad >= 5 && NivelDificultad <= 7) {
       pesoP = 0.6;
       pesoV = 0.4;
-    } else if (NivelDificultad >= 1 && NivelDificultad <= 3) {
-      pesoP = 0.4;
-      pesoV = 0.6;
+    } else if (NivelDificultad >= 1 && NivelDificultad <= 4) {
+      pesoP = 0.2;
+      pesoV = 0.8;
     } else {
       pesoP = 0.5;
       pesoV = 0.5;
