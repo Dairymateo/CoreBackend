@@ -1,11 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { PilotsService } from './pilots.service';
 import { CreatePilotDto } from './dto/create-pilot.dto';
 import { UpdatePilotDto } from './dto/update-pilot.dto';
 import { AdminGuard } from 'src/auth/guards/admin';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('pilots')
 export class PilotsController {
@@ -39,10 +48,8 @@ export class PilotsController {
     return this.pilotsService.remove(id);
   }
 
-
   @Get('ranking/circuit/:circuitId')
   async getPilotRankingForCircuit(@Param('circuitId') circuitId: string) {
     return this.pilotsService.getPilotRankingForCircuit(circuitId);
   }
-
 }

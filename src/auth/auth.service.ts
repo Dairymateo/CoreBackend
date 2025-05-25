@@ -3,7 +3,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable prettier/prettier */
 
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { SignupDTO } from './dto/signup.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
@@ -16,20 +20,19 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     @InjectModel(User.name) private UserModel: Model<User>,
-    @InjectModel(RefreshToken.name) private RefreshTokenModel: Model<RefreshToken>,
-  private jwtService: JwtService,
-) {}
+    @InjectModel(RefreshToken.name)
+    private RefreshTokenModel: Model<RefreshToken>,
+    private jwtService: JwtService,
+  ) {}
 
   async signup(signupData: SignupDTO) {
-    const {email, password, name} = signupData;
-    const emailInUse = await this.UserModel.findOne({ email, });
+    const { email, password, name } = signupData;
+    const emailInUse = await this.UserModel.findOne({ email });
     if (emailInUse) {
       throw new BadRequestException('Email already in use');
     }
-
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -40,9 +43,8 @@ export class AuthService {
     });
   }
 
-
-  async login(credentials: LoginDTO){
-    const {email, password} = credentials;
+  async login(credentials: LoginDTO) {
+    const { email, password } = credentials;
     const user = await this.UserModel.findOne({ email });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -52,20 +54,19 @@ export class AuthService {
     if (!passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    
 
     const tokens = await this.generateuserToken(user._id);
     return {
       ...tokens,
       userId: user._id,
       isAdmin: user.isAdmin,
-    }
+    };
   }
 
   async refreshTokens(refreshToken: string) {
-    const token = await this.RefreshTokenModel.findOneAndDelete({ 
-      token: refreshToken, 
-      expiryDate: { $gte: new Date() }, 
+    const token = await this.RefreshTokenModel.findOneAndDelete({
+      token: refreshToken,
+      expiryDate: { $gte: new Date() },
     });
 
     if (!token) {
@@ -75,28 +76,28 @@ export class AuthService {
     return this.generateuserToken(token.userId);
   }
 
-
-  async generateuserToken(userId){
-
-    const accesstoken =this.jwtService.sign({userId}, {expiresIn: '1h'});
+  async generateuserToken(userId) {
+    const accesstoken = this.jwtService.sign({ userId }, { expiresIn: '1h' });
     const refreshtoken = uuidv4();
 
     await this.storeRefreshToken(refreshtoken, userId);
     return {
       accesstoken,
-      refreshtoken
+      refreshtoken,
     };
   }
 
-
-
-  async storeRefreshToken(token:string, userId) {
+  async storeRefreshToken(token: string, userId) {
     const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + 3); 
-    await this.RefreshTokenModel.create({token, userId, expiryDate });
-  } 
-  
-  async createAdminUser(adminEmail: string, adminPassword: string, adminName: string = 'Administrator') {
+    expiryDate.setDate(expiryDate.getDate() + 3);
+    await this.RefreshTokenModel.create({ token, userId, expiryDate });
+  }
+
+  async createAdminUser(
+    adminEmail: string,
+    adminPassword: string,
+    adminName: string = 'Administrator',
+  ) {
     const existingAdmin = await this.UserModel.findOne({ email: adminEmail });
 
     if (!existingAdmin) {
@@ -110,12 +111,13 @@ export class AuthService {
         });
         console.log('Usuario administrador creado desde AuthService.');
       } catch (error) {
-        console.error('Error al crear el usuario administrador en AuthService:', error);
+        console.error(
+          'Error al crear el usuario administrador en AuthService:',
+          error,
+        );
       }
     } else {
       console.log('El usuario administrador ya existe.');
     }
   }
 }
-
-

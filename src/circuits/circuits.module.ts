@@ -7,9 +7,11 @@ import { Circuit } from './entities/circuit.entity';
 import { CircuitSchema } from './schemas/Circuits.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Circuit.name, schema: CircuitSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: Circuit.name, schema: CircuitSchema }]),
+  ],
   controllers: [CircuitsController],
   providers: [CircuitsService],
-  exports: [MongooseModule]
+  exports: [MongooseModule],
 })
 export class CircuitsModule {}

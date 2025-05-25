@@ -8,6 +8,6 @@ export class AppController {
 
   @Get()
   someProtectedRoute() {
-    return {message: 'This is a protected route'}; 
+    return { message: 'This is a protected route' };
   }
 }

@@ -2,21 +2,19 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-
-
 # F1 API - Backend
 
 Este proyecto es el backend de una aplicación para la gestión de datos de la Fórmula 1, específicamente para pilotos, vehículos y usuarios. Está construido con NestJS y utiliza MongoDB.
 
 ## Tecnologías Utilizadas
 
-- NestJS  
-- Mongoose (para la interacción con MongoDB)  
-- Passport (para la autenticación)  
-- JWT (JSON Web Tokens)  
-- bcrypt (para el manejo de contraseñas)  
-- class-validator y class-transformer  
-- TypeScript  
+- NestJS
+- Mongoose (para la interacción con MongoDB)
+- Passport (para la autenticación)
+- JWT (JSON Web Tokens)
+- bcrypt (para el manejo de contraseñas)
+- class-validator y class-transformer
+- TypeScript
 
 ## Dependencias
 
@@ -127,16 +125,16 @@ La API proporciona endpoints CRUD para las siguientes entidades:
 
 ### Endpoints por entidad
 
-- `GET /` - Obtiene todos los registros  
-- `GET /:id` - Obtiene un registro por su ID  
-- `POST /` - Crea un nuevo registro  
-- `PATCH /:id` - Actualiza un registro existente  
-- `DELETE /:id` - Elimina un registro  
+- `GET /` - Obtiene todos los registros
+- `GET /:id` - Obtiene un registro por su ID
+- `POST /` - Crea un nuevo registro
+- `PATCH /:id` - Actualiza un registro existente
+- `DELETE /:id` - Elimina un registro
 
 ### Autenticación (`/auth`)
 
-- `POST /auth/register` - Registra un nuevo usuario  
-- `POST /auth/login` - Inicia sesión de un usuario y devuelve un token JWT  
+- `POST /auth/register` - Registra un nuevo usuario
+- `POST /auth/login` - Inicia sesión de un usuario y devuelve un token JWT
 
 ## Autenticación
 

@@ -4,41 +4,35 @@ import { CreateCircuitDto } from './create-circuit.dto';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateCircuitDto extends PartialType(CreateCircuitDto) {
+  @IsString()
+  @IsOptional()
+  name?: string;
 
-    @IsString()
-    @IsOptional()
-    name?: string;
+  @IsString()
+  @IsOptional()
+  ubication?: string;
 
-    @IsString()
-    @IsOptional()
-    ubication?: string;
+  @IsNumber()
+  @IsOptional()
+  temperature?: number;
 
-    @IsNumber()
-    @IsOptional()
-    temperature?: number;
-    
-    @IsString()
-    @IsOptional()
-    tipoCircuito?: string;
+  @IsString()
+  @IsOptional()
+  tipoCircuito?: string;
 
-    @IsNumber()
-    @IsOptional()
-    cantidadCurvas?: number;
+  @IsNumber()
+  @IsOptional()
+  cantidadCurvas?: number;
 
-    @IsNumber()
-    @IsOptional()
-    porcentajeAccidentesHistorico?: number;
+  @IsNumber()
+  @IsOptional()
+  porcentajeAccidentesHistorico?: number;
 
-    @IsNumber()
-    @IsOptional()
-    longitudRectaMasLargaKm?: number;
+  @IsNumber()
+  @IsOptional()
+  longitudRectaMasLargaKm?: number;
 
-    @IsNumber()
-    @IsOptional()
-    cambioElevacionMetros?: number;
-    
-
-
-
-
+  @IsNumber()
+  @IsOptional()
+  cambioElevacionMetros?: number;
 }

@@ -26,9 +26,9 @@ import config from './config/config';
       imports: [ConfigModule],
       useFactory: async (config) => ({
         secret: config.get('jwt.secret'),
-    }),
-    global: true,
-    inject: [ConfigService],
+      }),
+      global: true,
+      inject: [ConfigService],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -41,7 +41,7 @@ import config from './config/config';
     PilotsModule,
     VehiclesModule,
     CircuitsModule,
-   ],
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

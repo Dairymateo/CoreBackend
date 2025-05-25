@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Post} from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDTO } from './dto/signup.dto';
 import { LoginDTO } from './dto/login.dto';
 
 import { RefreshTokensDTO } from './dto/refresh-tokens.dto';
-
 
 @Controller('auth')
 export class AuthController {
@@ -14,7 +13,6 @@ export class AuthController {
   @Post('signup')
   async signUp(@Body() signupData: SignupDTO) {
     return this.authService.signup(signupData);
-    
   }
 
   @Post('login')
@@ -26,8 +24,4 @@ export class AuthController {
   async refresh(@Body() refreshTokenDTO: RefreshTokensDTO) {
     return this.authService.refreshTokens(refreshTokenDTO.refreshToken);
   }
-
-
-
-
 }
