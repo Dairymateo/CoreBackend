@@ -29,7 +29,7 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin: 'http://localhost:3001',
+    origin: ['https://frontendcore.onrender.com', 'http://localhost:3001'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
