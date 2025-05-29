@@ -2,140 +2,187 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-# F1 API - Backend
+# F1 Performance API - Backend
 
-Este proyecto es el backend de una aplicación para la gestión de datos de la Fórmula 1, específicamente para pilotos, vehículos y usuarios. Está construido con NestJS y utiliza MongoDB.
+Este proyecto es el backend de un sistema diseñado para estimar el **rendimiento esperado de un piloto de Fórmula 1 en una próxima carrera**, combinando datos históricos, características técnicas del vehículo y condiciones de la pista.
+
+El sistema busca proporcionar una herramienta de análisis avanzada para **equipos, analistas y aficionados**, permitiéndoles anticipar el desempeño de los pilotos y tomar decisiones estratégicas con base en datos cuantificables.
+
+---
 
 ## Tecnologías Utilizadas
 
-- NestJS
-- Mongoose (para la interacción con MongoDB)
-- Passport (para la autenticación)
-- JWT (JSON Web Tokens)
-- bcrypt (para el manejo de contraseñas)
-- class-validator y class-transformer
-- TypeScript
+* **NestJS** - Framework de desarrollo backend con TypeScript.
+* **MongoDB** + **Mongoose** - Base de datos NoSQL y ODM.
+* **Passport + JWT** - Módulo de autenticación y autorización con tokens.
+* **bcrypt** - Encriptación segura de contraseñas.
+* **class-validator** y **class-transformer** - Validación y transformación de datos.
+* **TypeScript** - Tipado estático para mayor seguridad y mantenibilidad.
 
-## Dependencias
+---
 
-```json
-{
-  "@nestjs/common": "^11.0.1",
-  "@nestjs/config": "^4.0.2",
-  "@nestjs/core": "^11.0.1",
-  "@nestjs/jwt": "^11.0.0",
-  "@nestjs/mapped-types": "*",
-  "@nestjs/mongoose": "^11.0.3",
-  "@nestjs/platform-express": "^11.0.1",
-  "@types/bcrypt": "^5.0.2",
-  "bcrypt": "^5.1.1",
-  "class-transformer": "^0.5.1",
-  "class-validator": "^0.14.2",
-  "dotenv": "^16.5.0",
-  "mongoose": "^8.14.2",
-  "passport-jwt": "^4.0.1",
-  "passport-local": "^1.0.0",
-  "reflect-metadata": "^0.2.2",
-  "rxjs": "^7.8.1",
-  "uuid": "^11.1.0"
-}
+## Lógica del Sistema
+
+El sistema calcula un **índice de rendimiento total** a partir de tres componentes principales:
+
+### Evaluación del Piloto
+
+A partir del historial del piloto en una pista:
+
+```
+RendimientoP = (1 / PromedioPosición) * 0.6 + (1 - PorcentajeAbandono) * 0.4
 ```
 
-## Instalación
+Refleja consistencia y confiabilidad en contextos similares.
 
-### Clonar el repositorio
+---
+
+### Evaluación del Vehículo
+
+Con base en:
+
+* Velocidad punta
+* Fiabilidad del motor
+* Peso del monoplaza (normalizado)
+
+```
+RendimientoV = (VelPuntaNorm * 0.4) + (Fiabilidad * 0.4) + ((1 - PesoNorm) * 0.2)
+```
+
+---
+
+### Evaluación de la Pista
+
+* Tipo de circuito: urbano, tradicional, híbrido
+* Nivel de exigencia técnica (1–10)
+
+Estas variables modifican el peso relativo del piloto y el vehículo en el rendimiento final.
+
+---
+
+### Cálculo Final
+
+```
+RendimientoEsperado = (RendimientoP * PesoP) + (RendimientoV * PesoV)
+```
+
+Los pesos (`PesoP`, `PesoV`) se ajustan según el tipo de pista. Ejemplo:
+
+| Tipo de pista | PesoP | PesoV |
+| ------------- | ----- | ----- |
+| Técnica       | 0.75  | 0.25  |
+| Rápida        | 0.40  | 0.60  |
+
+---
+
+## Instalación y Configuración
+
+### 1. Clonar el repositorio
 
 ```bash
 git clone <URL_DEL_REPOSITORIO>
 cd backend
 ```
 
-### Instalar dependencias
+### 2. Instalar dependencias
 
 ```bash
 npm install
 ```
 
-### Configurar las variables de entorno
+### 3. Variables de entorno
 
-Crea un archivo `.env` en la raíz del proyecto y define las variables necesarias. Ejemplo:
+Crear un archivo `.env` en la raíz con el siguiente contenido:
 
-```env
+```
 MONGODB_URI=mongodb://usuario:contraseña@servidor:puerto/basededatos
 JWT_SECRET=tu_secreto_jwt
+PORT=3000
 ```
 
-### Ejecutar la aplicación
+### 4. Ejecutar la aplicación
 
 ```bash
 npm run start:dev
 ```
+
+---
 
 ## Estructura del Proyecto
 
 ```
 backend/
 ├── src/
-│   ├── auth/
-│   │   ├── dto/
-│   │   ├── entities/
-│   │   ├── guards/
-│   │   ├── schemas/
-│   │   ├── strategies/
-│   │   ├── auth.controller.ts
-│   │   ├── auth.module.ts
-│   │   ├── auth.service.ts
-│   ├── config/
-│   ├── pilots/
-│   │   ├── dto/
-│   │   ├── entities/
-│   │   ├── schemas/
-│   │   ├── pilots.controller.ts
-│   │   ├── pilots.module.ts
-│   │   ├── pilots.service.ts
-│   ├── vehicles/
-│   │   ├── dto/
-│   │   ├── entities/
-│   │   ├── schemas/
-│   │   ├── vehicles.controller.ts
-│   │   ├── vehicles.module.ts
-│   │   ├── vehicles.service.ts
-│   ├── app.controller.spec.ts
-│   ├── app.controller.ts
-│   ├── app.module.ts
-│   ├── app.service.ts
-│   └── main.ts
+│   ├── auth/        # Módulo de autenticación y seguridad
+│   ├── pilots/      # CRUD de pilotos
+│   ├── vehicles/    # CRUD de vehículos
+│   ├── circuits/    # CRUD de circuitos
+│   └── config/      # Configuración del entorno
 ├── test/
 ├── .env
-├── .gitignore
-├── .prettierrc
-├── eslint.config.mjs
-├── nest-cli.json
 ├── package.json
 └── README.md
 ```
 
-## Endpoints
+---
 
-La API proporciona endpoints CRUD para las siguientes entidades:
+## Endpoints Principales
 
-- **Pilots** (`/pilots`)
-- **Vehicles** (`/vehicles`)
-- **Users** (`/users`)
+### 🔹 Pilots `/pilots`
 
-### Endpoints por entidad
+* `GET /` - Obtener todos los pilotos
+* `GET /:id` - Obtener piloto por ID
+* `POST /` - Crear piloto
+* `PATCH /:id` - Actualizar piloto
+* `DELETE /:id` - Eliminar piloto
 
-- `GET /` - Obtiene todos los registros
-- `GET /:id` - Obtiene un registro por su ID
-- `POST /` - Crea un nuevo registro
-- `PATCH /:id` - Actualiza un registro existente
-- `DELETE /:id` - Elimina un registro
+### 🔹 Vehicles `/vehicles`
 
-### Autenticación (`/auth`)
+* `GET /` - Obtener todos los vehículos
+* `GET /:id` - Obtener vehículo por ID
+* `POST /` - Crear vehículo
+* `PATCH /:id` - Actualizar vehículo
+* `DELETE /:id` - Eliminar vehículo
 
-- `POST /auth/register` - Registra un nuevo usuario
-- `POST /auth/login` - Inicia sesión de un usuario y devuelve un token JWT
+### 🔹 Circuits `/circuits`
 
-## Autenticación
+* `GET /` - Obtener todos los circuitos
+* `GET /:id` - Obtener circuito por ID
+* `POST /` - Crear circuito
+* `PATCH /:id` - Actualizar circuito
+* `DELETE /:id` - Eliminar circuito
 
-La API utiliza JWT para proteger los endpoints. El acceso a rutas privadas está protegido mediante el `AuthGuard`.
+### 🔹 Autenticación `/auth`
+
+* `POST /auth/register` - Registrar usuario
+* `POST /auth/login` - Login y token JWT
+
+---
+
+## Despliegue
+
+El backend está desplegado en Render y disponible en:
+
+🔗 **[https://coreweb.onrender.com](https://coreweb.onrender.com)**
+
+---
+
+## Alcance
+
+Este sistema está enfocado en el análisis comparativo entre pilotos y vehículos bajo condiciones ideales. No considera:
+
+* Estrategias de boxes o cambios de neumáticos
+* Accidentes o condiciones climáticas en carrera
+* Datos en tiempo real o IA
+* Conexión con APIs externas
+
+Los datos son ingresados manualmente por el usuario y el enfoque es **cuantitativo y predictivo** bajo un entorno controlado.
+
+---
+
+## Limitaciones
+
+* No se consideran **paradas en pits**, cambios de neumáticos, ni **estrategias de equipo**.
+* No se utilizan **condiciones climáticas dinámicas**.
+* No se aplica inteligencia artificial ni machine learning.
+* Los resultados representan una **estimación teórica**, no un pronóstico en tiempo real.
