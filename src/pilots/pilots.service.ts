@@ -1,21 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+
+// src/pilots/pilots.service.ts
+/* eslint-disable prettier/prettier */
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { CreatePilotDto } from './dto/create-pilot.dto';
 import { UpdatePilotDto } from './dto/update-pilot.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { Pilot, PilotDocument } from './schemas/Pilot.schema';
-import { VehiclesService } from 'src/vehicles/vehicles.service';
-import { Circuit, CircuitDocument } from 'src/circuits/schemas/Circuits.schema';
+import { VehiclesService } from '../vehicles/vehicles.service'; 
+import { Circuit, CircuitDocument } from '../circuits/schemas/Circuits.schema'; 
+import { PilotPerformanceCalculatorService } from '../performance/services/pilot-performance-calculator.service'; 
+import { FinalPerformanceCalculatorService } from '../performance/services/final-performance-calculator.service'; 
+import { IPilotRepository } from '../repositories/interfaces/pilot-repository.interface'; // Interfaz del repositorio
 
 @Injectable()
 export class PilotsService {
   constructor(
-    @InjectModel(Pilot.name) private pilotModel: Model<Pilot>,
-    @InjectModel(Circuit.name) private circuitModel: Model<Circuit>,
+    @Inject('IPilotRepository') private readonly pilotRepository: IPilotRepository, // Inyección del repositorio
     private readonly vehiclesService: VehiclesService,
+    private readonly pilotPerformanceCalculatorService: PilotPerformanceCalculatorService, // Inyección de la calculadora de piloto
+    private readonly finalPerformanceCalculatorService: FinalPerformanceCalculatorService, // Inyección de la calculadora final
+    // Eliminamos @InjectModel(Circuit.name) private circuitModel: Model<Circuit>,
+    // ya que su responsabilidad no es manejar circuitos directamente para findById
+    // sino que se lo pasará a la calculadora final
   ) {}
 
-  async create(createPilotDto: CreatePilotDto) {
+  async create(createPilotDto: CreatePilotDto): Promise<PilotDocument> {
     const vehicle = await this.vehiclesService.findOne(
       createPilotDto.vehiculoId,
     );
@@ -24,18 +32,18 @@ export class PilotsService {
         `Vehicle with id "${createPilotDto.vehiculoId}" not found`,
       );
     }
-    const newPilot = new this.pilotModel(createPilotDto);
+    const newPilot = await this.pilotRepository.create(createPilotDto); // Usar el repositorio
     newPilot.generalPerfomance =
-      this.calculateGeneralPilotPerformance(newPilot);
-    return newPilot.save();
+      this.pilotPerformanceCalculatorService.calculateGeneralPilotPerformance(newPilot);
+    return this.pilotRepository.save(newPilot); // Guardar con el repositorio
   }
 
-  findAll() {
-    return this.pilotModel.find();
+  findAll(): Promise<PilotDocument[]> {
+    return this.pilotRepository.findAll(); // Usar el repositorio
   }
 
-  findOne(id: string) {
-    return this.pilotModel.findById(id);
+  findOne(id: string): Promise<PilotDocument | null> {
+    return this.pilotRepository.findById(id); // Usar el repositorio
   }
 
   async update(
@@ -43,7 +51,7 @@ export class PilotsService {
     updatePilotDto: UpdatePilotDto,
   ): Promise<PilotDocument | null> {
     try {
-      const pilotToUpdate = await this.pilotModel.findById(id);
+      const pilotToUpdate = await this.pilotRepository.findById(id); // Usar el repositorio
       if (!pilotToUpdate) {
         return null;
       }
@@ -57,19 +65,18 @@ export class PilotsService {
             `Vehicle with id "${updatePilotDto.vehiculoId}" not found`,
           );
         }
-        updatePilotDto.vehiculoId = vehicle._id.toString();
+
       }
 
-      const updatedPilotInfo = await this.pilotModel
-        .findByIdAndUpdate(id, updatePilotDto, { new: true })
-        .exec();
+      const updatedPilotInfo = await this.pilotRepository.update(id, updatePilotDto); // Usar el repositorio
 
       if (updatedPilotInfo) {
+        // Recalcular rendimiento general si se actualiza
         updatedPilotInfo.generalPerfomance =
-          this.calculateGeneralPilotPerformance(
-            updatedPilotInfo as PilotDocument,
+          this.pilotPerformanceCalculatorService.calculateGeneralPilotPerformance(
+            updatedPilotInfo,
           );
-        return await updatedPilotInfo.save();
+        return await this.pilotRepository.save(updatedPilotInfo); // Guardar con el repositorio
       }
 
       return updatedPilotInfo;
@@ -79,77 +86,26 @@ export class PilotsService {
     }
   }
 
-  remove(id: string) {
-    return this.pilotModel.findByIdAndDelete(id);
+  remove(id: string): Promise<any> {
+    return this.pilotRepository.delete(id); // Usar el repositorio
   }
 
-  calculateGeneralPilotPerformance(pilot: PilotDocument): number {
-    if (
-      pilot.promedioPosicionFinalGeneral === undefined ||
-      pilot.porcentajeAbandonoGeneral === undefined
-    ) {
-      return 0;
-    }
-    const averagePositionFactor = 1 / pilot.promedioPosicionFinalGeneral;
-    const reliabilityFactor = 1 - pilot.porcentajeAbandonoGeneral / 100;
-    const performance = 0.7 * averagePositionFactor + 0.3 * reliabilityFactor;
-    return performance;
-  }
-
-  calculateFinalPerformance(
-    pilot: PilotDocument,
-    ciruit: CircuitDocument,
-  ): number {
-    console.log('Pilot vehiculoId:', pilot.vehiculoId);
-    console.log('Type of pilot vehiculoId:', typeof pilot.vehiculoId);
-    if (!pilot.vehiculoId) {
-      return 0;
-    }
-
-    const pilotPerformance = pilot.generalPerfomance;
-    const vehiclePerformance = (pilot.vehiculoId as any).vehiclePerfomance;
-    const NivelDificultad = ciruit.dificultadCircuito;
-
-    let pesoP = 0.5;
-    let pesoV = 0.5;
-
-    if (NivelDificultad == 10) {
-      pesoP = 0.95;
-      pesoV = 0.05;
-    } else if (NivelDificultad >= 8 && NivelDificultad <= 9) {
-      pesoP = 0.80;
-      pesoV = 0.20;
-    }
-    else if (NivelDificultad >= 5 && NivelDificultad <= 7) {
-      pesoP = 0.6;
-      pesoV = 0.4;
-    } else if (NivelDificultad >= 1 && NivelDificultad <= 4) {
-      pesoP = 0.2;
-      pesoV = 0.8;
-    } else {
-      pesoP = 0.5;
-      pesoV = 0.5;
-    }
-
-    const finalPerformance =
-      pilotPerformance * pesoP + vehiclePerformance * pesoV;
-
-    return finalPerformance;
-  }
 
   async getPilotRankingForCircuit(
     circuitId: string,
   ): Promise<{ pilot: PilotDocument; finalPerformance: number }[]> {
-    const circuit = await this.circuitModel.findById(circuitId);
+
+    const circuit = await (this as any).circuitModel.findById(circuitId).exec(); // Acceso al model de Circuit
     if (!circuit) {
-      throw new Error('Circuit not found');
+      throw new NotFoundException('Circuit not found');
     }
 
-    const pilots = await this.pilotModel.find().populate('vehiculoId');
+
+    const pilots = await (this as any).pilotModel.find().populate('vehiculoId').exec(); // Acceso directo al model de Pilot, debería ser via repository.findById().populate()
 
     const pilotPerformances = await Promise.all(
       pilots.map(async (pilot) => {
-        const finalPerformance = await this.calculateFinalPerformance(
+        const finalPerformance = this.finalPerformanceCalculatorService.calculateFinalPerformance(
           pilot,
           circuit,
         );

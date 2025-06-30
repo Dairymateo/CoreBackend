@@ -14,6 +14,8 @@ import { PilotsModule } from './pilots/pilots.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
 import { CircuitsModule } from './circuits/circuits.module';
 import config from './config/config';
+import { PerformanceModule } from './performance/performance.module';
+import { RepositoriesModule } from './repositories/repositories.module';
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import config from './config/config';
     PilotsModule,
     VehiclesModule,
     CircuitsModule,
+    PerformanceModule,
+    RepositoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

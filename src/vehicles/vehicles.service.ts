@@ -1,30 +1,34 @@
-/* eslint-disable prettier/prettier */
 
+// src/vehicles/vehicles.service.ts
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Vehicle, VehicleDocument } from './schemas/Vehicle.schema';
+import { VehiclePerformanceCalculatorService } from '../performance/services/vehicle-performance-calculator.service'; // Nueva importación
 
 @Injectable()
 export class VehiclesService {
   constructor(
-    @InjectModel(Vehicle.name) private vehicleModel: Model<Vehicle>,
+    @InjectModel(Vehicle.name) private vehicleModel: Model<VehicleDocument>,
+    private readonly vehiclePerformanceCalculatorService: VehiclePerformanceCalculatorService, // Inyección de la calculadora
   ) {}
 
-  create(createVehicleDto: CreateVehicleDto) {
+  create(createVehicleDto: CreateVehicleDto): Promise<VehicleDocument> {
     const newVehicle = new this.vehicleModel(createVehicleDto);
-    newVehicle.vehiclePerfomance = this.CalculateVehiclePerformance(newVehicle);
+    // Usar el servicio de cálculo para el rendimiento del vehículo
+    newVehicle.vehiclePerfomance = this.vehiclePerformanceCalculatorService.calculateVehiclePerformance(newVehicle);
     return newVehicle.save();
   }
 
-  findAll() {
-    return this.vehicleModel.find();
+  findAll(): Promise<VehicleDocument[]> {
+    return this.vehicleModel.find().exec();
   }
 
-  findOne(id: string) {
-    return this.vehicleModel.findById(id);
+  findOne(id: string): Promise<VehicleDocument | null> {
+    return this.vehicleModel.findById(id).exec();
   }
 
   async update(
@@ -36,17 +40,19 @@ export class VehiclesService {
         id,
         updateVehicleDto,
         { new: true },
-      );
+      ).exec();
 
       if (!updatedVehicleInfo) {
         return null;
       }
 
-      const fullUpdatedVehicle = await this.vehicleModel.findById(id);
+
+      const fullUpdatedVehicle = await this.vehicleModel.findById(id).exec();
 
       if (fullUpdatedVehicle) {
+        // Usar el servicio de cálculo para el rendimiento del vehículo al actualizar
         fullUpdatedVehicle.vehiclePerfomance =
-          this.CalculateVehiclePerformance(fullUpdatedVehicle);
+          this.vehiclePerformanceCalculatorService.calculateVehiclePerformance(fullUpdatedVehicle);
         return await fullUpdatedVehicle.save();
       }
 
@@ -57,22 +63,7 @@ export class VehiclesService {
     }
   }
 
-  remove(id: string) {
-    return this.vehicleModel.findByIdAndDelete(id);
-  }
-
-  CalculateVehiclePerformance(vehicle: VehicleDocument): number {
-    const maxPesoReferencia = 800;
-    const maxVelocidadReferencia = 354;
-
-    const velocidadP = vehicle.velocidadPunta / maxVelocidadReferencia;
-    const pesoNormalizado = vehicle.peso / maxPesoReferencia;
-
-    const fiabilidadNormalizada = vehicle.fiabilidad / 100;
-    const tasaDeFallo = 1 - fiabilidadNormalizada;
-
-    const rendimientoV =
-      velocidadP * 0.4 + (1 - tasaDeFallo) * 0.4 + (1 - pesoNormalizado) * 0.2;
-    return rendimientoV;
+  remove(id: string): Promise<any> {
+    return this.vehicleModel.findByIdAndDelete(id).exec();
   }
 }

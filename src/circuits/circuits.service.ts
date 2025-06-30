@@ -1,3 +1,4 @@
+// src/circuits/circuits.service.ts
 /* eslint-disable prettier/prettier */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -5,17 +6,19 @@ import { Model } from 'mongoose';
 import { CreateCircuitDto } from './dto/create-circuit.dto';
 import { UpdateCircuitDto } from './dto/update-circuit.dto';
 import { Circuit, CircuitDocument } from './schemas/Circuits.schema';
+import { CircuitDifficultyCalculatorService } from '../performance/services/circuit-difficulty-calculator.service'; // Nueva importación
 
 @Injectable()
 export class CircuitsService {
   constructor(
     @InjectModel(Circuit.name) private circuitModel: Model<CircuitDocument>,
+    private readonly circuitDifficultyCalculatorService: CircuitDifficultyCalculatorService, // Inyección de la calculadora
   ) {}
 
   async create(createCircuitDto: CreateCircuitDto): Promise<Circuit> {
     const newCircuit = new this.circuitModel(createCircuitDto);
-    // Calcular la dificultad usando tu nueva lógica y asignarla al nuevo circuito
-    newCircuit.dificultadCircuito = this.calculateCircuitDifficulty(newCircuit);
+    // Usar el servicio de cálculo para la dificultad
+    newCircuit.dificultadCircuito = this.circuitDifficultyCalculatorService.calculateCircuitDifficulty(newCircuit);
     return newCircuit.save();
   }
 
@@ -40,8 +43,9 @@ export class CircuitsService {
 
       Object.assign(existingCircuit, updateCircuitDto);
 
+      // Usar el servicio de cálculo para la dificultad al actualizar
       existingCircuit.dificultadCircuito =
-        this.calculateCircuitDifficulty(existingCircuit);
+        this.circuitDifficultyCalculatorService.calculateCircuitDifficulty(existingCircuit);
 
       return await existingCircuit.save();
     } catch (error) {
@@ -52,34 +56,5 @@ export class CircuitsService {
 
   remove(id: string): Promise<any> {
     return this.circuitModel.findByIdAndDelete(id).exec();
-  }
-
-  private calculateCircuitDifficulty(circuit: CircuitDocument): number {
-    const {
-      cantidadCurvas,
-      porcentajeAccidentesHistorico,
-      longitudRectaMasLargaKm,
-      cambioElevacionMetros,
-    } = circuit;
-
-    const pesoCurvas = 0.4;
-    const pesoAccidentes = 0.1;
-    const pesoRecta = 0.3;
-    const pesoElevacion = 0.2;
-
-    const curvasNormalizado = cantidadCurvas / 20;
-    const accidentesNormalizado = porcentajeAccidentesHistorico / 100;
-    const rectaNormalizada = 1 - longitudRectaMasLargaKm / 7;
-    const elevacionNormalizada = cambioElevacionMetros / 8;
-
-    let dificultadCalculada =
-      curvasNormalizado * pesoCurvas +
-      accidentesNormalizado * pesoAccidentes +
-      rectaNormalizada * pesoRecta +
-      elevacionNormalizada * pesoElevacion;
-
-    dificultadCalculada = Math.min(Math.max(dificultadCalculada * 10, 1), 10);
-
-    return parseFloat(dificultadCalculada.toFixed(2));
   }
 }
