@@ -75,6 +75,20 @@ Los pesos (`PesoP`, `PesoV`) se ajustan según el tipo de pista. Ejemplo:
 
 ---
 
+
+## Arquitectura y Patrones de Diseño
+Este backend ha sido diseñado siguiendo principios de software robustos para asegurar su mantenibilidad, escalabilidad y testabilidad. Se han aplicado los siguientes principios SOLID y patrones de diseño:
+
+## Principios SOLID
+Principio de Responsabilidad Única (SRP): Cada clase o módulo tiene una única razón para cambiar. La lógica de cálculo se ha segregado en servicios dedicados (PilotPerformanceCalculatorService, VehiclePerformanceCalculatorService, CircuitDifficultyCalculatorService, FinalPerformanceCalculatorService), mientras que los servicios principales (PilotsService, VehiclesService, CircuitsService) se centran en la gestión de sus respectivas entidades (CRUD).
+
+Principio de Inversión de Dependencias (DIP): Los módulos de alto nivel no dependen de módulos de bajo nivel; ambos dependen de abstracciones. Esto se logra mediante la inyección de dependencias de NestJS y el uso de interfaces. Por ejemplo, PilotsService depende de IPilotRepository (una abstracción) en lugar de una implementación concreta de la base de datos, y de servicios de cálculo inyectados.
+
+## Patrones de Diseño
+Patrón Repository (Repositorio): Se ha implementado una capa de abstracción para el acceso a datos. La interfaz IPilotRepository define las operaciones de persistencia para la entidad Piloto, y PilotMongoRepository es su implementación concreta para MongoDB. Esto desacopla la lógica de negocio de los detalles de la base de datos, facilitando cambios futuros en la tecnología de persistencia y mejorando la testabilidad.
+
+Patrón Strategy (Estrategia): Utilizado en el FinalPerformanceCalculatorService para determinar los pesos (PesoP, PesoV) del piloto y el vehículo según el nivel de dificultad del circuito. Diferentes clases de estrategia (ej., HighDifficultyCircuitStrategy, LowDifficultyCircuitStrategy) implementan la interfaz ICircuitDifficultyStrategy, permitiendo añadir nuevas reglas de ponderación sin modificar el código existente del calculador final.
+
 ## Instalación y Configuración
 
 ### 1. Clonar el repositorio

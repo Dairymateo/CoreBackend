@@ -48,7 +48,6 @@ export class LowDifficultyCircuitStrategy implements ICircuitDifficultyStrategy 
 @Injectable()
 export class DefaultCircuitDifficultyStrategy implements ICircuitDifficultyStrategy {
   appliesTo(difficultyLevel: number): boolean {
-    // Esta es la estrategia por defecto, se aplica si ninguna otra lo hace.
     return true;
   }
 
