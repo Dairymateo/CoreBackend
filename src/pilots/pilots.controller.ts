@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable prettier/prettier */
 import {
@@ -51,5 +52,10 @@ export class PilotsController {
   @Get('ranking/circuit/:circuitId')
   async getPilotRankingForCircuit(@Param('circuitId') circuitId: string) {
     return this.pilotsService.getPilotRankingForCircuit(circuitId);
+  }
+
+    @Get('ranking/all')
+  async getAllPilotsRankings() {
+    return this.pilotsService.getAllCircuitsRankings();
   }
 }

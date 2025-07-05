@@ -1,3 +1,8 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 
 // src/pilots/pilots.service.ts
 /* eslint-disable prettier/prettier */
@@ -10,17 +15,19 @@ import { Circuit, CircuitDocument } from '../circuits/schemas/Circuits.schema';
 import { PilotPerformanceCalculatorService } from '../performance/services/pilot-performance-calculator.service'; 
 import { FinalPerformanceCalculatorService } from '../performance/services/final-performance-calculator.service'; 
 import { IPilotRepository } from '../repositories/interfaces/pilot-repository.interface'; // Interfaz del repositorio
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class PilotsService {
   constructor(
-    @Inject('IPilotRepository') private readonly pilotRepository: IPilotRepository, // Inyección del repositorio
+    @Inject('IPilotRepository') private readonly pilotRepository: IPilotRepository, 
+    @InjectModel(Pilot.name) private pilotModel: Model<PilotDocument>, // ¡Re-añadido!
+    @InjectModel(Circuit.name) private circuitModel: Model<CircuitDocument>,
     private readonly vehiclesService: VehiclesService,
-    private readonly pilotPerformanceCalculatorService: PilotPerformanceCalculatorService, // Inyección de la calculadora de piloto
-    private readonly finalPerformanceCalculatorService: FinalPerformanceCalculatorService, // Inyección de la calculadora final
-    // Eliminamos @InjectModel(Circuit.name) private circuitModel: Model<Circuit>,
-    // ya que su responsabilidad no es manejar circuitos directamente para findById
-    // sino que se lo pasará a la calculadora final
+    private readonly pilotPerformanceCalculatorService: PilotPerformanceCalculatorService, 
+    private readonly finalPerformanceCalculatorService: FinalPerformanceCalculatorService, 
+
   ) {}
 
   async create(createPilotDto: CreatePilotDto): Promise<PilotDocument> {
@@ -114,5 +121,21 @@ export class PilotsService {
     );
     pilotPerformances.sort((a, b) => b.finalPerformance - a.finalPerformance);
     return pilotPerformances;
+  }
+
+
+    async getAllCircuitsRankings(): Promise<Array<{ circuit: CircuitDocument; ranking: { pilot: PilotDocument; finalPerformance: number }[] }>> {
+    // Se utiliza el modelo de Mongoose para obtener todos los circuitos.
+    const allCircuits = await this.circuitModel.find().exec();
+
+    const allRankings = await Promise.all(
+      allCircuits.map(async (circuit) => {
+        // Reutiliza el método existente para obtener el ranking de un circuito específico
+        const rankingForCircuit = await this.getPilotRankingForCircuit(circuit._id.toString());
+        return { circuit, ranking: rankingForCircuit };
+      })
+    );
+
+    return allRankings;
   }
 }
