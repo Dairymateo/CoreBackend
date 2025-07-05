@@ -20,4 +20,6 @@ export class VehiclePerformanceCalculatorService {
       velocidadP * 0.4 + fiabilidadNormalizada * 0.4 + (1 - pesoNormalizado) * 0.2;
 
     return parseFloat(rendimientoV.toFixed(4)); 
-}
+
+  }
+} 

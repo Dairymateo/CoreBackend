@@ -125,7 +125,7 @@ export class PilotsService {
 
 
     async getAllCircuitsRankings(): Promise<Array<{ circuit: CircuitDocument; ranking: { pilot: PilotDocument; finalPerformance: number }[] }>> {
-    // Se utiliza el modelo de Mongoose para obtener todos los circuitos.
+  
     const allCircuits = await this.circuitModel.find().exec();
 
     const allRankings = await Promise.all(
