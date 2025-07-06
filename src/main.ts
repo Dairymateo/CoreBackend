@@ -29,7 +29,7 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin: ['https://frontendcore.onrender.com', 'http://localhost:3001', 'http://localhost:5173'],
+    origin: ['https://frontendcore.onrender.com', 'http://localhost:3001', 'http://localhost:5173', 'https://vitereact-m2lu.onrender.com'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
