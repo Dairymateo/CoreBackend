@@ -75,15 +75,14 @@ export class PilotsService {
 
       }
 
-      const updatedPilotInfo = await this.pilotRepository.update(id, updatePilotDto); // Usar el repositorio
+      const updatedPilotInfo = await this.pilotRepository.update(id, updatePilotDto); 
 
       if (updatedPilotInfo) {
-        // Recalcular rendimiento general si se actualiza
         updatedPilotInfo.generalPerfomance =
           this.pilotPerformanceCalculatorService.calculateGeneralPilotPerformance(
             updatedPilotInfo,
           );
-        return await this.pilotRepository.save(updatedPilotInfo); // Guardar con el repositorio
+        return await this.pilotRepository.save(updatedPilotInfo); 
       }
 
       return updatedPilotInfo;
@@ -94,7 +93,7 @@ export class PilotsService {
   }
 
   remove(id: string): Promise<any> {
-    return this.pilotRepository.delete(id); // Usar el repositorio
+    return this.pilotRepository.delete(id); 
   }
 
 
@@ -102,13 +101,13 @@ export class PilotsService {
     circuitId: string,
   ): Promise<{ pilot: PilotDocument; finalPerformance: number }[]> {
 
-    const circuit = await (this as any).circuitModel.findById(circuitId).exec(); // Acceso al model de Circuit
+    const circuit = await (this as any).circuitModel.findById(circuitId).exec(); 
     if (!circuit) {
       throw new NotFoundException('Circuit not found');
     }
 
 
-    const pilots = await (this as any).pilotModel.find().populate('vehiculoId').exec(); // Acceso directo al model de Pilot, debería ser via repository.findById().populate()
+    const pilots = await (this as any).pilotModel.find().populate('vehiculoId').exec(); 
 
     const pilotPerformances = await Promise.all(
       pilots.map(async (pilot) => {
@@ -130,7 +129,6 @@ export class PilotsService {
 
     const allRankings = await Promise.all(
       allCircuits.map(async (circuit) => {
-        // Reutiliza el método existente para obtener el ranking de un circuito específico
         const rankingForCircuit = await this.getPilotRankingForCircuit(circuit._id.toString());
         return { circuit, ranking: rankingForCircuit };
       })

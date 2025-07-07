@@ -47,7 +47,7 @@ export class FinalPerformanceCalculatorService {
     const vehiclePerformance = (pilot.vehiculoId as any).vehiclePerfomance;
     const circuitDifficultyLevel = circuit.dificultadCircuito;
 
-    // Usar el Patrón Strategy para obtener los pesos
+    
     const strategy = this.strategies.find(s => s.appliesTo(circuitDifficultyLevel));
 
     if (!strategy) {
